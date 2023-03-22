@@ -5,6 +5,8 @@ import re
 import sys
 import shutil
 
+import time
+
 try:
     from colorama import init
 except:
@@ -125,68 +127,75 @@ elif len(sys.argv) > 2:
     print(f'\n{"Processing... ".center(sw)}')
     oldSize = os.path.getsize(sys.argv[1])
     logging = not argIsProvided('-s')
+    
+    expansion = '.' + sys.argv[1].split('.')[1]
 
-    with open(sys.argv[1], 'r') as sf:
-        data = sf.read()
+    if expansion != '.py':
+        with open(sys.argv[1], 'r') as sf:
+            data = sf.read()
 
-    lens = [len(data), 0]
+        lens = [len(data), 0]
 
-    while '  ' in data:
-        data = data.replace('  ', ' ')
-    lens[1] = len(data)
-    if lens[0] - lens[1] > 0 and logging:
-            with open('log.txt', 'a') as log:
-                log.write(f'\n\nDoubleWhitespaces: removed {lens[0] - lens[1]} symbols\n')
-        
-    lens[0] = len(data)
-    data = re.sub(r'\/\/.*', '', data)
-    lens[1] = len(data)
-    if lens[0] - lens[1] > 0 and logging:
-        with open('log.txt', 'a') as log:
-            log.write(f'Comments: removed {lens[0] - lens[1]} symbols\n')
+        while '  ' in data:
+            data = data.replace('  ', ' ')
+        lens[1] = len(data)
+        if lens[0] - lens[1] > 0 and logging:
+                with open('log.txt', 'a') as log:
+                    log.write(f'\n\nDoubleWhitespaces: removed {lens[0] - lens[1]} symbols\n')
 
-    lens[0] = len(data)
-    for pair in templates:
-        data = data.replace(pair[0], pair[1])
-    lens[1] = len(data)
-    if lens[0] - lens[1] > 0 and logging:
-        with open('log.txt', 'a') as log:
-            log.write(f'Templates: removed {lens[0] - lens[1]} symbols\n')
-
-    if not argIsProvided('--ignore-newlines'):
         lens[0] = len(data)
-        data = data.replace('\n', ';')
-        while ';;' in data:
-            data = data.replace(';;', ';')
+        data = re.sub(r'\/\/.*', '', data)
         lens[1] = len(data)
         if lens[0] - lens[1] > 0 and logging:
             with open('log.txt', 'a') as log:
-                log.write(f'Newlines: removed {lens[0] - lens[1]} symbols\n')
+                log.write(f'Comments: removed {lens[0] - lens[1]} symbols\n')
 
-    lens[0] = len(data)
-    for pair in fixes:
-        data = data.replace(pair[0], pair[1])
-    lens[1] = len(data)
-    if lens[0] - lens[1] > 0 and logging:
-        with open('log.txt', 'a') as log:
-            log.write(f'PostProcessing: removed {lens[0] - lens[1]} symbols\n\n\n')
+        lens[0] = len(data)
+        for pair in templates:
+            data = data.replace(pair[0], pair[1])
+        lens[1] = len(data)
+        if lens[0] - lens[1] > 0 and logging:
+            with open('log.txt', 'a') as log:
+                log.write(f'Templates: removed {lens[0] - lens[1]} symbols\n')
 
-    with open(sys.argv[2], 'w') as dest:
-        dest.write(data)
-    print(Fore.GREEN + f'Done{Style.RESET_ALL}'.center(sw) + Style.RESET_ALL)
-    oldSizeVal = 'B'
-    dmem = abs(oldSize - os.path.getsize(sys.argv[2]))
-    if oldSize >= 1024:
-        oldSize = round(oldSize / 1024, 2)
-        oldSizeVal = 'kB'
-    newSize = os.path.getsize(sys.argv[2])
-    newSizeVal = 'B'
-    if newSize >= 1024:
-        newSize = round(newSize / 1024, 2)
-        newSizeVal = 'kB'
-    fsdstr = Fore.RED + str(oldSize) + f'{oldSizeVal}{Style.RESET_ALL} -> ' + Fore.GREEN + str(newSize) + newSizeVal + Style.RESET_ALL
-    dmemVal = 'B'
-    if dmem >= 1024:
-        dmem = round(dmem / 1024, 2)
-        dmemVal = 'kB'
-    print(f'\nFile size:\n{fsdstr}\n\n{Fore.GREEN}{str(dmem).split(".")[0]}.{str(dmem).split(".")[1][:2]}{dmemVal}{Style.RESET_ALL} freed!\n')
+        if not argIsProvided('--ignore-newlines'):
+            lens[0] = len(data)
+            data = data.replace('\n', ';')
+            while ';;' in data:
+                data = data.replace(';;', ';')
+            lens[1] = len(data)
+            if lens[0] - lens[1] > 0 and logging:
+                with open('log.txt', 'a') as log:
+                    log.write(f'Newlines: removed {lens[0] - lens[1]} symbols\n')
+
+        lens[0] = len(data)
+        for pair in fixes:
+            data = data.replace(pair[0], pair[1])
+        lens[1] = len(data)
+        if lens[0] - lens[1] > 0 and logging:
+            with open('log.txt', 'a') as log:
+                log.write(f'PostProcessing: removed {lens[0] - lens[1]} symbols\n\n\n')
+
+        with open(sys.argv[2], 'w') as dest:
+            dest.write(data)
+        print(Fore.GREEN + f'Done{Style.RESET_ALL}'.center(sw) + Style.RESET_ALL)
+        oldSizeVal = 'B'
+        dmem = abs(oldSize - os.path.getsize(sys.argv[2]))
+        if oldSize >= 1024:
+            oldSize = round(oldSize / 1024, 2)
+            oldSizeVal = 'kB'
+        newSize = os.path.getsize(sys.argv[2])
+        newSizeVal = 'B'
+        if newSize >= 1024:
+            newSize = round(newSize / 1024, 2)
+            newSizeVal = 'kB'
+        fsdstr = Fore.RED + str(oldSize) + f'{oldSizeVal}{Style.RESET_ALL} -> ' + Fore.GREEN + str(newSize) + newSizeVal + Style.RESET_ALL
+        dmemVal = 'B'
+        if dmem >= 1024:
+            dmem = round(dmem / 1024, 2)
+            dmemVal = 'kB'
+        print(f'\nFile size:\n{fsdstr}\n\n{Fore.GREEN}{str(dmem).split(".")[0]}.{str(dmem).split(".")[1][:2]}{dmemVal}{Style.RESET_ALL} freed!\n')
+    else:
+        print("You can`t edit python files")
+        time.sleep(5)
+        quit()
