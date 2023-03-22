@@ -5,17 +5,7 @@ import re
 import sys
 import shutil
 
-try:
-    from colorama import init
-except:
-    input('[!] Please, wait; there is something to install before the first launch. Press [Enter] to continue.\n')
-    os.system('pip install colorama')
-    try:
-        from colorama import init
-    except:
-        print('\n\n"Something" does not want to be installed. Please install the following libraries manually:\n- colorama\n\nPress [Ctrl]+[C] to exit.\n')
-        while True:
-            pass
+from colorama import init
 init()
 from colorama import Fore, Style
 
