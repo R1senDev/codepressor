@@ -127,10 +127,8 @@ elif len(sys.argv) > 2:
     print(f'\n{"Processing... ".center(sw)}')
     oldSize = os.path.getsize(sys.argv[1])
     logging = not argIsProvided('-s')
-    
-    expansion = '.' + sys.argv[1].split('.')[1]
 
-    if expansion != '.py':
+    if not re.findall(r'\.py.?', sys.argv[1]):
         with open(sys.argv[1], 'r') as sf:
             data = sf.read()
 
@@ -196,6 +194,4 @@ elif len(sys.argv) > 2:
             dmemVal = 'kB'
         print(f'\nFile size:\n{fsdstr}\n\n{Fore.GREEN}{str(dmem).split(".")[0]}.{str(dmem).split(".")[1][:2]}{dmemVal}{Style.RESET_ALL} freed!\n')
     else:
-        print("You can`t edit python files")
-        time.sleep(5)
-        quit()
+        print('Python code is not supported yet.\n\nDo you want to help? Fork the project (https://github.com/R1senDev/codepressor), modify it and create a Pull Request! :)')
