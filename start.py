@@ -123,7 +123,7 @@ elif len(sys.argv) > 2:
             print(f'\n{Fore.RED}I hope you thought before doing this.{Style.RESET_ALL}')
         else:
             print('\nAbort.')
-            exit
+            exit()
     print(f'\n{"Processing... ".center(sw)}')
     oldSize = os.path.getsize(sys.argv[1])
     logging = not argIsProvided('-s')
@@ -192,6 +192,9 @@ elif len(sys.argv) > 2:
         if dmem >= 1024:
             dmem = round(dmem / 1024, 2)
             dmemVal = 'kB'
-        print(f'\nFile size:\n{fsdstr}\n\n{Fore.GREEN}{str(dmem).split(".")[0]}.{str(dmem).split(".")[1][:2]}{dmemVal}{Style.RESET_ALL} freed!\n')
+        if dmem == int(dmem):
+            print(f'\nFile size:\n{fsdstr}\n\n{Fore.GREEN}{dmem}{dmemVal}{Style.RESET_ALL} freed!\n')
+        else:
+            print(f'\nFile size:\n{fsdstr}\n\n{Fore.GREEN}{dmem}{dmemVal}{Style.RESET_ALL} freed!\n')
     else:
         print('Python code is not supported yet.\n\nDo you want to help? Fork the project (https://github.com/R1senDev/codepressor), modify it and create a Pull Request! :)')
