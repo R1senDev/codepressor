@@ -13,21 +13,21 @@ sw = int(str(shutil.get_terminal_size()).split('=')[1].split(',')[0])
 print(f'{Style.BRIGHT}\n{title.center(sw)}{Style.RESET_ALL}')
 
 def argIsProvided(arg):
-    for a in sys.argv:
+    for a in args:
         if a == arg:
             return True
     return False
 
 def getArgPos(arg):
-    for aPos in range(1, len(sys.argv)):
-        if sys.argv[aPos] == arg:
+    for aPos in range(1, len(args)):
+        if args[aPos] == arg:
             return aPos
     return -1
 
 def getArgValue(arg, default=''):
     if argIsProvided(arg):
-        if len(sys.argv) >= getArgPos(arg) + 1:
-            return sys.argv[getArgPos(arg) + 1]
+        if len(args) >= getArgPos(arg) + 1:
+            return args[getArgPos(arg) + 1]
         else:
             return default
     else:
@@ -100,24 +100,29 @@ fixes = [
     ['; ', ';'],
 ]
 
-if argIsProvided('-h') or argIsProvided('--help') or len(sys.argv) == 1:
+args = sys.orig_argv
+
+if argIsProvided('-h') or argIsProvided('--help') or len(args) <= 2 or len(args) > 4:
     print(f'\nUsage: start.py sourceFile [destinationFile] [args]\n\nOptional arguments:\n{"-h, --help".center(20)}  Shows this message.\n{"-s".center(20)}  Disables logging.\n{"--ignore-newlines".center(20)}  Ignores newline characters. Significantly reduces the compression efficiency.\n')
-elif len(sys.argv) > 2:
-    if sys.argv[1] == sys.argv[2]:
+    exit()
+elif len(args) > 2:
+    source = args[2]
+    target = source + '.tmp' if len(args) == 3 else args[3]
+    if source == target:
         overwrite = input(f'The source file and the destination file are the same. Are you sure you want to {Fore.RED}overwrite the source file{Style.RESET_ALL}?\n[B]ackup and overwrite/[O]verwrite/[A]bort: ')
         if overwrite.lower() == 'b':
-            shutil.copyfile(sys.argv[1], f'{sys.argv[1]}.bkp')
+            shutil.copyfile(source, f'{source}.bkp')
         elif overwrite.lower() == 'o':
             print(f'\n{Fore.RED}I hope you thought before doing this.{Style.RESET_ALL}')
         else:
             print('\nAbort.')
             exit()
     print(f'\n{"Processing... ".center(sw)}')
-    oldSize = os.path.getsize(sys.argv[1])
+    oldSize = os.path.getsize(source)
     logging = not argIsProvided('-s')
 
-    if not re.findall(r'\.py.?', sys.argv[1]):
-        with open(sys.argv[1], 'r') as sf:
+    if not re.findall(r'\.py.?', source):
+        with open(source, 'r') as sf:
             data = sf.read()
 
         lens = [len(data), 0]
@@ -162,15 +167,15 @@ elif len(sys.argv) > 2:
             with open('log.txt', 'a') as log:
                 log.write(f'PostProcessing: removed {lens[0] - lens[1]} symbols\n\n\n')
 
-        with open(sys.argv[2], 'w') as dest:
+        with open(target, 'w') as dest:
             dest.write(data)
         print(Fore.GREEN + f'Done{Style.RESET_ALL}'.center(sw) + Style.RESET_ALL)
         oldSizeVal = 'B'
-        dmem = abs(oldSize - os.path.getsize(sys.argv[2]))
+        dmem = abs(oldSize - os.path.getsize(target))
         if oldSize >= 1024:
             oldSize = round(oldSize / 1024, 2)
             oldSizeVal = 'kB'
-        newSize = os.path.getsize(sys.argv[2])
+        newSize = os.path.getsize(target)
         newSizeVal = 'B'
         if newSize >= 1024:
             newSize = round(newSize / 1024, 2)
